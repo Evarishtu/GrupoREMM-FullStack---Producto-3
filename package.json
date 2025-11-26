@@ -1,0 +1,30 @@
+{
+  "name": "gruporemm-fullstack---producto-3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Evarishtu/GrupoREMM-FullStack---Producto-3.git"
+  },
+  "keywords": [],
+  "author": "Grupo REMM",
+  "license": "ISC",
+
+  "bugs": {
+    "url": "https://github.com/Evarishtu/GrupoREMM-FullStack---Producto-3/issues"
+  },
+  "homepage": "https://github.com/Evarishtu/GrupoREMM-FullStack---Producto-3#readme",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
