@@ -8,7 +8,7 @@ export const schema = buildSchema(`
     }
     type Query{
         usuarios: [Usuario]
-        usuarioPorEmail(email: String!): Usuario
+        usuariosPorEmail(email: String!): Usuario
         existeEmail(email: String!): Boolean
         usuarioActivo: String
         login(email: String!, password: String!): Usuario
