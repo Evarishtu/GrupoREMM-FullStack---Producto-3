@@ -49,7 +49,7 @@ export function getUsuarioActivo() {
 }
 
 export function setUsuarioActivo(nombre) {
-    usuarioActivo = nombre;
+    usuarioActivo = user;
 }
 
 export function limpiarUsuarioActivo() {

@@ -6,22 +6,49 @@ export const schema = buildSchema(`
         email: String
         password: String
     }
+
+    type Voluntariado{
+    id: ID
+    titulo: String
+    usuario: String
+    fecha: String
+    descripcion: String
+    tipo: String
+    }
+
     type Query{
         usuarios: [Usuario]
-        usuariosPorEmail(email: String!): Usuario
-        existeEmail(email: String!): Boolean
-        usuarioActivo: String
-        login(email: String!, password: String!): Usuario
+        usuarioPorEmail(email: String!): Usuario
+        usuarioActivo: Usuario
+
+        voluntariados: [Voluntariado]
+        voluntariadoPorId(id: ID): Voluntariado
     }
-    input UsuarioInput{
-        nombre: String
-        email: String
-        password: String
-    }
+    
     type Mutation{
-        crearUsuario(datos: UsuarioInput!): Usuario
+        crearUsuario(nombre: String!, email: String!, password: String!): Usuario
         borrarUsuarioPorEmail(email: String!): String
         borrarUsuarioPorIndice(indice: Int!): String
         limpiarUsuarioActivo: String
+        login(email: String!, password: String!): Usuario
+
+        crearVoluntariado(
+            titulo: String!,
+            usuario: String!,
+            fecha: String!,
+            descripcion: String!,
+            tipo: String!
+        ): Voluntariado
+
+        actualizarVoluntariado(
+            id: ID!,
+            titulo: String,
+            usuario: String,
+            fecha: String,
+            descripcion: String,
+            tipo: String
+        ): String
+
+        eliminarVoluntariado(id: ID!): String
     }
 `);

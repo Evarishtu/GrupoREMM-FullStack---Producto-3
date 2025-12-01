@@ -1,48 +1,74 @@
-import { usuarios, setUsuarios, usuarioActivo, setUsuarioActivo } from "../data/usuarios.js";
+import {getAllUsuarios, 
+        getUsuarioByEmail, 
+        createUsuario, 
+        deleteUsuarioByEmail,
+        deleteUsuarioByIndex,
+        getUsuarioActivo,
+        setUsuarioActivo,
+        limpiarUsuarioActivo
+} from "../models/usuario.model.js";
+
+import {getAllVoluntariados,
+        getVoluntariadoById,
+        createVoluntariado,
+        updateVoluntariado,
+        deleteVoluntariado
+} from "../models/voluntariado.model.js";
 
 export const root = {
-
-    usuarios: () => usuarios,
-    
-    usuariosPorEmail: ({email}) =>
-        usuarios.find(u => u.email === email) || null,
-
-    existeEmail: ({email}) =>
-        usuarios.some(u => u.email === email),
-
-    usuarioActivo: () => usuarioActivo,
-
-    login: ({email, password}) => {
-        const encontrado = usuarios.find(u => u.email === email);
-
-        if(!encontrado) return null;
-        if(encontrado.password !== password) return null;
-
-        setUsuarioActivo(encontrado.nombre);
-        return encontrado;
+    // Queries
+    usuarios: async () => {
+        return await getAllUsuarios();
     },
-
-    crearUsuario: ({datos}) => {
-        usuarios.push(datos);
-        return datos;
+    usuarioPorEmail: async ({email}) => {
+        return await getUsuarioByEmail(email);
     },
-
-    borrarUsuarioPorEmail: ({email}) => {
-        const listaNueva = usuarios.filter(u => u.email !== email);
-        setUsuarios(listaNueva);
-        return "Usuario eliminado"
+    usuarioActivo: () => {
+        return getUsuarioActivo();
     },
+    voluntariados: async () => {
+        return await getAllVoluntariados();
+    },
+    voluntariadoPorId: async ({id}) => {
+        return await getVoluntariadoById(id);
+    },
+    // Mutations
 
-    borrarUsuarioPorIndice: ({indice}) => {
-        if(indice < 0 || indice >= usuarios.length){
-            return "Índice fuera de rango";
-        }
-        usuarios.splice(indice, 1);
-        return "Usuario borrado por índice";
+    crearUsuario: async ({nombre, email, password}) => {
+        return await createUsuario({nombre, email, password});
+    },
+    borrarUsuarioPorEmail: async ({email}) => {
+        await deleteUsuarioByEmail(email);
+        return "Usuario eliminado";
+    },
+    borrarUsuarioPorIndice: async ({indice}) => {
+        const ok = await deleteUsuarioByIndex(indice);
+        return ok ? "Usuario eliminado por índice" : "Índice fuera de rango";
     },
 
     limpiarUsuarioActivo: () => {
-        setUsuarioActivo(null);
+        limpiarUsuarioActivo();
         return "Sesión cerrada";
-    }
-};
+    },
+    login: async ({email, password}) => {
+        const user = await getUsuarioByEmail(email);
+
+        if(!user || user.password !== password){
+            return null;
+        }
+        setUsuarioActivo(user.nombre);
+        return user;
+    },
+    crearVoluntariado: async (args) => {
+        return await createVoluntariado(args);
+    },
+
+    actualizarVoluntariado: async ({id, ...cambios}) => {
+        await updateVoluntariado(id, cambios);
+        return "Voluntariado actualizado";
+    },
+    eliminarVoluntariado: async ({id}) => {
+        await deleteVoluntariado(id);
+        return "Voluntariado eliminado";
+    }    
+}

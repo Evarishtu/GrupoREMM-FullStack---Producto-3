@@ -5,21 +5,15 @@ import {graphqlHTTP} from "express-graphql";
 import {schema} from "./graphql/schema.js";
 import {root} from "./graphql/resolvers.js";
 
-// import usuariosRoutes from "./routes/usuarios";
-import voluntariadosRoutes from "./routes/voluntariados.js";
-
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(cors());
 
-// app.use("/usuarios", usuariosRoutes);
-app.use("/voluntariados", voluntariadosRoutes);
-
-app.use(
+app.use("/graphql",
     graphqlHTTP({
-        schema: schema,
+        schema,
         rootValue: root,
         graphiql: true
     })
