@@ -59,8 +59,14 @@ export const root = {
         setUsuarioActivo(user.nombre);
         return user;
     },
-    crearVoluntariado: async (args) => {
-        return await createVoluntariado(args);
+    crearVoluntariado: async ({titulo, usuario, fecha, descripcion, tipo}) => {
+        return await createVoluntariado({
+            titulo,
+            usuario,
+            fecha,
+            descripcion,
+            tipo
+        });
     },
 
     actualizarVoluntariado: async ({id, ...cambios}) => {

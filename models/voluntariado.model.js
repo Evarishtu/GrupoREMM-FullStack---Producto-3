@@ -28,6 +28,7 @@ export async function getVoluntariadoById(id){
 }
 
 export async function createVoluntariado(data){
+    console.log("Datos recibidos en createVoluntariado", data)
     const db = await getDB();
 
     const result = await db.collection(COLLECTION).insertOne(data);
