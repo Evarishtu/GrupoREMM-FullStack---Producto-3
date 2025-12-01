@@ -1,17 +1,19 @@
 import { Router } from "express";
 
 import {
-    getVoluntariados,
+    listarVoluntariados,
+    obtenerVoluntariado,
     crearVoluntariado,
-    updateVoluntariado,
+    actualizarVoluntariado,
     eliminarVoluntariado
 } from "../controllers/voluntariadosController.js";
 
 const router = Router();
 
-router.get("/", getVoluntariados);
+router.get("/", listarVoluntariados);
+router.get("/:id", obtenerVoluntariado);
 router.post("/", crearVoluntariado);
-router.put("/:id", updateVoluntariado);
+router.put("/:id", actualizarVoluntariado);
 router.delete("/:id", eliminarVoluntariado);
 
 export default router;

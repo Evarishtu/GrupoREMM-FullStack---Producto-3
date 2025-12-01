@@ -1,60 +1,88 @@
-import {voluntariados, setVoluntariados } from "../data/voluntariados.js";
+import {getAllVoluntariados, 
+        getVoluntariadoById,
+        createVoluntariado,
+        updateVoluntariado,
+        deleteVoluntariado
+} from "../models/voluntariado.model.js";
 
-export const getVoluntariados = (req, res) => {
-    res.json(voluntariados);
-};
-export const crearVoluntariado = (req, res) =>{
-    const nuevo = req.body;
+export async function listarVoluntariados(req, res) {
+    try {
+        const lista = await getAllVoluntariados();
+        res.json(lista);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al obtener voluntariados" });
+    }
+}
 
-    nuevo.id = voluntariados.length > 0
-        ? voluntariados[voluntariados.length - 1].id + 1 
-        : 1;
+export async function obtenerVoluntariado(req, res) {
+    try {
+        const id = req.params.id;
+        const voluntariado = await getVoluntariadoById(id);
 
-    voluntariados.push(nuevo);
+        if (!voluntariado) {
+            return res.status(404).json({ mensaje: "Voluntariado no encontrado" });
+        }
 
-    res.json({
-        mensaje: "Voluntariado creado correctamente",
-        voluntariado: nuevo
-    });
-};
+        res.json(voluntariado);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al obtener voluntariado" });
+    }
+}
 
-export const updateVoluntariado = (req, res) => {
-    const id = Number(req.params.id);
-    const datosActualizados = req.body;
+export async function crearVoluntariado(req, res) {
+    try {
+        const nuevo = await createVoluntariado(req.body);
+        res.json({
+            mensaje: "Voluntariado creado",
+            voluntariado: nuevo
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al crear voluntariado" });
+    }
+}
 
-    const voluntariado = voluntariados.find(v => v.id === id);
-    
-    if(!voluntariado){
-        return res.status(404).json({
-            mensaje: "Voluntariado no encontrado",
+export async function actualizarVoluntariado(req, res) {
+    try {
+        const id = req.params.id;
+        const cambios = req.body;
+
+        const voluntariado = await getVoluntariadoById(id);
+        if (!voluntariado) {
+            return res.status(404).json({ mensaje: "Voluntariado no encontrado" });
+        }
+
+        await updateVoluntariado(id, cambios);
+
+        res.json({
+            mensaje: "Voluntariado actualizado",
             id
         });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al actualizar voluntariado" });
     }
-    Object.assign(voluntariado, datosActualizados);
+}
 
-    res.json({
-        mensaje: "Voluntariado actualizado correctamente",
-        voluntariado
-    });
-};
+export async function eliminarVoluntariado(req, res) {
+    try {
+        const id = req.params.id;
 
-export const eliminarVoluntariado = (req, res) => {
-    const id = Number(req.params.id);
+        const voluntariado = await getVoluntariadoById(id);
+        if (!voluntariado) {
+            return res.status(404).json({ mensaje: "Voluntariado no encontrado" });
+        }
 
-    const voluntariado = voluntariados.filter(v => v.id !== id);
+        await deleteVoluntariado(id);
 
-    if(!voluntariado){
-        return res.status(404).json({
-            mensaje: "Voluntariado no encontrado",
+        res.json({
+            mensaje: "Voluntariado eliminado",
             id
         });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: "Error al eliminar voluntariado" });
     }
-
-    const filtrados = voluntariados.filter(v => v.id !== id);
-    setVoluntariados(filtrados);
-
-    res.json({
-        mensake: "Voluntariado eliminado correctamente",
-        id
-    });
-};
+}
