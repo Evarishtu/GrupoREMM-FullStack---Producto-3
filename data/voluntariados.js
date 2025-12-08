@@ -1,3 +1,29 @@
+/**
+ * @module voluntariados
+ * Este módulo gestiona la lista de voluntariados disponibles en el sistema y
+ * proporciona funciones para modificarla.
+ */
+
+/**
+ * Representa un voluntariado publicado por un usuario.
+ * 
+ * @typedef {Object} Voluntariado
+ * @property {number} id - Identificador único del voluntariado.
+ * @property {string} titulo - Título descriptivo de la oferta o petición.
+ * @property {string} usuario - Nombre del usuario que publica el voluntariado.
+ * @property {string} fecha - Fecha de publicación del voluntariado (formato 'YYYY-MM-DD').
+ * @property {string} descripcion - Descripción detallada del voluntariado.
+ * @property {'oferta'|'peticion'} tipo - Indica si es una oferta de servicio o una petición de ayuda.
+ * @property {string} imagenFondo - URL de una imagen para representar visualmente el voluntariado.
+ */
+
+/**
+ * Lista de todos los voluntariados disponibles en el sistema.
+ * 
+ * @type {Voluntariado[]}
+ * @example
+ * console.log(voluntariados[0].titulo);
+ */
 export let voluntariados = [
   {
     id: 1,
@@ -36,6 +62,15 @@ export let voluntariados = [
     imagenFondo: 'https://15f8034cdff6595cbfa1-1dd67c28d3aade9d3442ee99310d18bd.ssl.cf3.rackcdn.com/uploaded_thumb_big/c1dc328c546f572dfe66453867eeffb8/cuidar_iguana_domestica_consejos_clinica_veterinaria_la_granja_aviles.png'
   }
 ];
+
+/**
+ * Reemplaza la lista actual de voluntariados con una nueva lista.
+ * 
+ * @param {Voluntariado[]} nuevoArray - La nueva lista de objetos Voluntariado a establecer.
+ * @returns {void}
+ * @example
+ * setVoluntariados([{ id: 5, titulo: 'Nueva oferta', usuario: 'Admin', fecha: '2025-12-01', descripcion: 'Voluntariado nuevo', tipo: 'oferta', imagenFondo: '' }]);
+ */
 export function setVoluntariados(nuevoArray) {
   voluntariados = nuevoArray;
 }
