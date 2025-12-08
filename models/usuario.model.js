@@ -48,7 +48,7 @@ export function getUsuarioActivo() {
     return usuarioActivo;
 }
 
-export function setUsuarioActivo(nombre) {
+export function setUsuarioActivo(user) {
     usuarioActivo = user;
 }
 
