@@ -1,54 +1,39 @@
 /**
  * @module usuario
- * Módulo que gestiona la lista de usuarios y el estado del usuario activo.
- * Proporciona funciones para manipular usuarios y sesiones.
+ * Módulo con datos de ejemplo de usuarios usado en versiones anteriores en memoria.
+ * En la versión actual del backend, los usuarios se gestionan en MongoDB
+ * mediante los modelos y nunca se almacenan contraseñas en texto plano.
  */
 
 /**
  * @typedef {Object} Usuario
  * @property {string} nombre - El nombre del usuario.
  * @property {string} email - La dirección de correo electrónico del usuario.
- * @property {string} password - La contraseña del usuario.
+ * @property {string} password - La contraseña del usuario (solo para ejemplos locales, no en producción).
  */
 
 /**
- * Lista de todos los usuarios registrados en el sistema.
- * Contiene objetos que siguen la estructura definida en {@link Usuario}.
- * 
+ * Lista inicial de usuarios de ejemplo.
+ * En la versión con MongoDB, los usuarios reales se insertan en la base de datos
+ * con la contraseña hasheada mediante bcrypt.
+ *
  * @type {Usuario[]}
  */
 export let usuarios = [
-    {
-        nombre: "Admin",
-        email: "admin@mail.com",
-        password: "1234"
-    }
+  {
+    nombre: "Admin",
+    email: "admin@mail.com",
+    password: "1234" // solo como dato de ejemplo histórico
+  }
 ];
 
 /**
- * Nombre del usuario que está actualmente logueado.
- * Si no hay ningún usuario activo, su valor es `null`.
- * 
- * @type {?string}
- */
-export let usuarioActivo = null;
-
-/**
- * Reemplaza la lista actual de usuarios con una nueva lista.
- * 
- * @param {Usuario[]} nuevos - La nueva lista de usuarios que se desea establecer.
+ * Reemplaza la lista actual de usuarios en memoria.
+ * Esta funcionalidad solo se usa en versiones sin base de datos.
+ *
+ * @param {Usuario[]} nuevos
  * @returns {void}
  */
-export function setUsuarios(nuevos){
-    usuarios = nuevos;
-}
-
-/**
- * Establece el nombre del usuario actualmente activo (logueado).
- * 
- * @param {string} nombre - El nombre del usuario que ha iniciado sesión.
- * @returns {void}
- */
-export function setUsuarioActivo(nombre){
-    usuarioActivo = nombre;
+export function setUsuarios(nuevos) {
+  usuarios = nuevos;
 }

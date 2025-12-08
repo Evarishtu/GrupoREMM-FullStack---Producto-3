@@ -7,45 +7,20 @@ import dotenv from "dotenv";
 
 /**
  * Carga las variables de entorno desde el archivo .env.
- * Configura process.env con todas las variables necesarias.
  */
 dotenv.config();
 
-/**
- * Framework web para Node.js que maneja peticiones HTTP y middleware.
- * Proporciona routing, middleware y manejo de requests/responses.
- * 
- */
 import express from "express";
-
-/**
- * Middleware CORS para permitir peticiones cross-origin.
- */
 import cors from "cors";
-
-/**
- * Middleware para parsear cuerpos JSON en las peticiones HTTP.
- */
 import bodyParser from "body-parser";
+import { graphqlHTTP } from "express-graphql";
+import jwt from "jsonwebtoken";
 
-/**
- * Middleware de Express GraphQL para exponer la API GraphQL.
- */
-import {graphqlHTTP} from "express-graphql";
-
-/**
- * Esquema GraphQL completo de la aplicación.
- */
-import {schema} from "./graphql/schema.js";
-
-/**
- * Resolvers (funciones de resolución) para todas las queries y mutations.
- */
-import {root} from "./graphql/resolvers.js";
+import { schema } from "./graphql/schema.js";
+import { root } from "./graphql/resolvers.js";
 
 /**
  * Aplicación Express principal.
- * 
  * @type {import('express').Express}
  */
 const app = express();
@@ -53,55 +28,58 @@ const app = express();
 /**
  * Puerto en el que escuchará el servidor.
  * Usa la variable de entorno PORT o 3000 por defecto.
- * 
  * @type {number}
  */
 const port = process.env.PORT || 3000;
 
 /**
  * Middleware para parsear cuerpos JSON en las peticiones entrantes.
- * Limita el tamaño máximo a 10mb por defecto.
  */
 app.use(bodyParser.json());
 
 /**
  * Middleware CORS que permite peticiones desde cualquier origen.
- * Configuración por defecto: permite todos los métodos y headers.
  */
-
 app.use(cors());
+
+/**
+ * Middleware para extraer JWT del header Authorization: Bearer <token>.
+ * Si el token es válido, se añade el usuario decodificado en req.user.
+ */
+app.use((req, res, next) => {
+  const auth = req.headers.authorization || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "dev_secret");
+      req.user = decoded;
+    } catch {
+      req.user = null;
+    }
+  } else {
+    req.user = null;
+  }
+  next();
+});
+
 /**
  * Middleware GraphQL principal en la ruta /graphql.
  * Expone la API GraphQL completa con interfaz GraphiQL en desarrollo.
  */
-app.use("/graphql",
-    graphqlHTTP({
-        /**
-         * Esquema GraphQL que define todos los tipos, queries y mutations.
-         * @type {import('graphql').GraphQLSchema}
-         */
-        schema,
-        /**
-         * Objeto raíz que contiene todos los resolvers (funciones de resolución).
-         * @type {Object}
-         */
-        rootValue: root,
-        /**
-         * Habilita la interfaz GraphiQL en desarrollo para testing interactivo.
-         * @type {boolean}
-         */
-        graphiql: true
-    })
+app.use("/graphql", (req, res) =>
+  graphqlHTTP({
+    schema,
+    rootValue: root,
+    graphiql: true,
+    // Pasamos el usuario autenticado al contexto de GraphQL
+    context: { user: req.user }
+  })(req, res)
 );
 
 /**
  * Inicia el servidor HTTP escuchando en el puerto configurado.
- * Registra un mensaje de confirmación en la consola al iniciar correctamente.
- * 
- * @param {number} port - Puerto del servidor.
- * @returns {void}
- * @listens express~listening
  */
 app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });

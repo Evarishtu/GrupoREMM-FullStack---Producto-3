@@ -1,5 +1,5 @@
-import {ObjectId} from "mongodb";
-import {getDB} from "../database/database.js";
+import { ObjectId } from "mongodb";
+import { getDB } from "../database/database.js";
 
 /**
  * Nombre de la colección de MongoDB que almacena los documentos de voluntariado.
@@ -24,15 +24,15 @@ const COLLECTION = "voluntariados";
  * @param {VoluntariadoDB} v - El documento de voluntariado de MongoDB.
  * @returns {Voluntariado} El objeto de voluntariado mapeado.
  */
-function mapVoluntariado(v){
-    return{
-        id: v._id.toString(),
-        titulo: v.titulo,
-        usuario: v.usuario,
-        fecha: v.fecha,
-        descripcion: v.descripcion,
-        tipo: v.tipo
-    };
+function mapVoluntariado(v) {
+  return {
+    id: v._id.toString(),
+    titulo: v.titulo,
+    usuario: v.usuario,
+    fecha: v.fecha,
+    descripcion: v.descripcion,
+    tipo: v.tipo
+  };
 }
 
 /**
@@ -40,10 +40,10 @@ function mapVoluntariado(v){
  * @async
  * @returns {Promise<Voluntariado[]>} Una promesa que resuelve con un array de objetos Voluntariado.
  */
-export async function getAllVoluntariados(){
-    const db = await getDB();
-    const lista = await db.collection(COLLECTION).find().toArray();
-    return lista.map(mapVoluntariado);
+export async function getAllVoluntariados() {
+  const db = await getDB();
+  const lista = await db.collection(COLLECTION).find().toArray();
+  return lista.map(mapVoluntariado);
 }
 
 /**
@@ -52,11 +52,11 @@ export async function getAllVoluntariados(){
  * @param {string} id - El ID del voluntariado a buscar (debe ser un string que represente un ObjectId).
  * @returns {Promise<Voluntariado | null>} El objeto Voluntariado mapeado, o null si no se encuentra.
  */
-export async function getVoluntariadoById(id){
-    const db = await getDB();
-    const v = await db.collection(COLLECTION).findOne({_id: new ObjectId(id)});
+export async function getVoluntariadoById(id) {
+  const db = await getDB();
+  const v = await db.collection(COLLECTION).findOne({ _id: new ObjectId(id) });
 
-    return v ? mapVoluntariado(v): null;
+  return v ? mapVoluntariado(v) : null;
 }
 
 /**
@@ -65,16 +65,16 @@ export async function getVoluntariadoById(id){
  * @param {Omit<VoluntariadoDB, '_id'>} data - Objeto con los datos del nuevo voluntariado.
  * @returns {Promise<Voluntariado>} El objeto del voluntariado insertado, incluyendo el ID como string.
  */
-export async function createVoluntariado(data){
-    console.log("Datos recibidos en createVoluntariado", data)
-    const db = await getDB();
+export async function createVoluntariado(data) {
+  console.log("Datos recibidos en createVoluntariado", data);
+  const db = await getDB();
 
-    const result = await db.collection(COLLECTION).insertOne(data);
-    return {
-        id: result.insertedId.toString(),
-        ...data
-    }
-};
+  const result = await db.collection(COLLECTION).insertOne(data);
+  return {
+    id: result.insertedId.toString(),
+    ...data
+  };
+}
 
 /**
  * Actualiza los campos especificados de un voluntariado por su ID.
@@ -83,28 +83,33 @@ export async function createVoluntariado(data){
  * @param {Object} data - Objeto con los campos y nuevos valores a aplicar ($set).
  * @returns {Promise<Voluntariado | null>} El voluntariado actualizado o null si no se encuentra.
  */
-export async function updateVoluntariado(id, data){
-    const db = await getDB();
-    await db.collection(COLLECTION).updateOne(
-        {_id: new ObjectId(id)},
-        {$set: data}
+export async function updateVoluntariado(id, data) {
+  const db = await getDB();
+  const result = await db.collection(COLLECTION).updateOne(
+    { _id: new ObjectId(id) },
+    { $set: data }
+  );
 
-    );
+  if (result.matchedCount === 0) {
+    return null;
+  }
 
-        return await getVoluntariadoById(id);
+  return await getVoluntariadoById(id);
 }
 
 /**
  * Elimina un voluntariado basándose en su ID de MongoDB.
  * @async
  * @param {string} id - El ID del voluntariado a eliminar.
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>} true si se eliminó, false si no existía.
  */
-export async function deleteVoluntariado(id){
-    const db = await getDB();
-    await db
-        .collection(COLLECTION)
-        .deleteOne({_id: new ObjectId(id)});
+export async function deleteVoluntariado(id) {
+  const db = await getDB();
+  const result = await db
+    .collection(COLLECTION)
+    .deleteOne({ _id: new ObjectId(id) });
+
+  return result.deletedCount > 0;
 }
 
 /**
@@ -113,12 +118,12 @@ export async function deleteVoluntariado(id){
  * @param {number} index - El índice (posición) del voluntariado a buscar.
  * @returns {Promise<Voluntariado | null>} El objeto Voluntariado mapeado, o null si el índice está fuera de rango.
  */
-export async function getVoluntariadoByIndex(index){
-    const voluntariados = await getAllVoluntariados();
+export async function getVoluntariadoByIndex(index) {
+  const voluntariados = await getAllVoluntariados();
 
-    if (index < 0 || index >= voluntariados.length) return null;
+  if (index < 0 || index >= voluntariados.length) return null;
 
-    return voluntariados[index];
+  return voluntariados[index];
 }
 
 /**
@@ -128,20 +133,20 @@ export async function getVoluntariadoByIndex(index){
  * @param {Object} cambios - Objeto con los campos y nuevos valores a aplicar ($set).
  * @returns {Promise<boolean>} Devuelve `true` si se actualizó, `false` si el índice está fuera de rango.
  */
-export async function updateVoluntariadoByIndex(index, cambios){
-    const voluntariados = await getAllVoluntariados();
+export async function updateVoluntariadoByIndex(index, cambios) {
+  const voluntariados = await getAllVoluntariados();
 
-    if (index < 0 || index >= voluntariados.length) return false;
+  if (index < 0 || index >= voluntariados.length) return false;
 
-    const voluntariado = voluntariados[index];
+  const voluntariado = voluntariados[index];
 
-    const db = await getDB();
+  const db = await getDB();
 
-    await db.collection("voluntariados").updateOne(
-        {_id: new ObjectId(voluntariado.id)},
-        {$set: cambios}
-    );
-    return true;
+  await db.collection(COLLECTION).updateOne(
+    { _id: new ObjectId(voluntariado.id) },
+    { $set: cambios }
+  );
+  return true;
 }
 
 /**
@@ -150,16 +155,16 @@ export async function updateVoluntariadoByIndex(index, cambios){
  * @param {number} index - El índice del voluntariado a eliminar.
  * @returns {Promise<boolean>} Devuelve `true` si se eliminó, `false` si el índice está fuera de rango.
  */
-export async function deleteVoluntariadoByIndex(index){
-    const voluntariados = await getAllVoluntariados();
+export async function deleteVoluntariadoByIndex(index) {
+  const voluntariados = await getAllVoluntariados();
 
-    if(index < 0 || index >= voluntariados.length) return false;
+  if (index < 0 || index >= voluntariados.length) return false;
 
-    const voluntariado = voluntariados[index];
-    const db = await getDB();
+  const voluntariado = voluntariados[index];
+  const db = await getDB();
 
-    await db.collection("voluntariados").deleteOne({
-        _id: new ObjectId(voluntariado.id)
-    });
-    return true;
+  await db.collection(COLLECTION).deleteOne({
+    _id: new ObjectId(voluntariado.id)
+  });
+  return true;
 }
