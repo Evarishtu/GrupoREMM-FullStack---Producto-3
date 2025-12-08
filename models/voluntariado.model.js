@@ -32,21 +32,20 @@ export async function createVoluntariado(data){
     const db = await getDB();
 
     const result = await db.collection(COLLECTION).insertOne(data);
-
-    return{
+    return {
         id: result.insertedId.toString(),
         ...data
-    };
-}
+    }
+};
+
 
 export async function updateVoluntariado(id, data){
     const db = await getDB();
-    await db
-        .collection(COLLECTION)
-        .updateOne(
-            {_id: new ObjectId(id)},
-            { $set: data}
-        );
+    await db.collection(COLLECTION).updateOne(
+        {_id: new ObjectId(id)},
+        {$set: data}
+
+    );
 
         return await getVoluntariadoById(id);
 }
@@ -56,4 +55,41 @@ export async function deleteVoluntariado(id){
     await db
         .collection(COLLECTION)
         .deleteOne({_id: new ObjectId(id)});
+}
+
+export async function getVoluntariadoByIndex(index){
+    const voluntariados = await getAllVoluntariados();
+
+    if (index < 0 || index >= voluntariados.length) return null;
+
+    return voluntariados[index];
+}
+
+export async function updateVoluntariadoByIndex(index, cambios){
+    const voluntariados = await getAllVoluntariados();
+
+    if (index < 0 || index >= voluntariados.length) return false;
+
+    const voluntariado = voluntariados[index];
+
+    const db = await getDB();
+
+    await db.collection("voluntariados").updateOne(
+        {_id: new ObjectId(voluntariado.id)},
+        {$set: cambios}
+    );
+    return true;
+}
+export async function deleteVoluntariadoByIndex(index){
+    const voluntariados = await getAllVoluntariados();
+
+    if(index < 0 || index >= voluntariados.length) return false;
+
+    const voluntariado = voluntariados[index];
+    const db = await getDB();
+
+    await db.collection("voluntariados").deleteOne({
+        _id: new ObjectId(voluntariado.id)
+    });
+    return true;
 }
