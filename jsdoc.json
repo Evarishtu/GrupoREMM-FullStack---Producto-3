@@ -1,0 +1,10 @@
+{
+  "source": {
+    "include": ["models", "graphql", "server.js"],
+    "includePattern": ".js$"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true
+  }
+}

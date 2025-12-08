@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/usuario.model.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/usuario.model.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { ObjectId } from "mongodb";
+import { getDB } from "../database/database.js";
+
+/**
+ * Nombre de la colección de MongoDB que almacena los documentos de usuario.
+ * @constant {string}
+ */
+const COLLECTION = "usuarios";
+
+/**
+ * Recupera y devuelve todos los documentos de usuario de la colección.
+ * @async
+ * @returns {Promise&lt;Usuario[]>} Una promesa que resuelve con un array de objetos Usuario.
+ */
+export async function getAllUsuarios() {
+    const db = await getDB();
+    return db.collection(COLLECTION).find().toArray();
+}
+
+/**
+ * Busca y devuelve un único usuario basándose en su dirección de correo electrónico.
+ * @async
+ * @param {string} email - El email del usuario a buscar.
+ * @returns {Promise&lt;Usuario | null>} Una promesa que resuelve con el objeto Usuario, o null si no se encuentra.
+ */
+export async function getUsuarioByEmail(email) {
+    const db = await getDB();
+    return db.collection(COLLECTION).findOne({ email });
+}
+
+/**
+ * Inserta un nuevo documento de usuario en la colección.
+ * @async
+ * @param {Omit&lt;Usuario, '_id'>} data - Objeto con los datos del nuevo usuario (nombre, email, password).
+ * @returns {Promise&lt;Usuario>} Una promesa que resuelve con el objeto del usuario insertado, incluyendo el ID.
+ */
+export async function createUsuario(data) {
+    const db = await getDB();
+    const result = await db.collection(COLLECTION).insertOne(data);
+
+    return {
+        id: result.insertedId,
+        ...data
+    };
+}
+
+/**
+ * Elimina un único usuario de la colección basándose en su dirección de correo electrónico.
+ * @async
+ * @param {string} email - El email del usuario a eliminar.
+ * @returns {Promise&lt;void>}
+ */
+export async function deleteUsuarioByEmail(email) {
+    const db = await getDB();
+    await db.collection(COLLECTION).deleteOne({ email });
+}
+
+/**
+ * Elimina un usuario basándose en su posición (índice) en el array devuelto por getAllUsuarios().
+ * Esta función es menos eficiente y se utiliza a menudo para simular operaciones de array en la API.
+ * @async
+ * @param {number} index - El índice (posición) del usuario a eliminar.
+ * @returns {Promise&lt;boolean>} Devuelve `true` si el usuario fue eliminado, `false` si el índice está fuera de rango.
+ */
+export async function deleteUsuarioByIndex(index) {
+    const usuarios = await getAllUsuarios();
+
+    if (index &lt; 0 || index >= usuarios.length)
+        return false;
+
+    const user = usuarios[index];
+
+    const db = await getDB();
+    // Usa el email del usuario obtenido por índice para la eliminación segura.
+    await db.collection(COLLECTION).deleteOne({ email: user.email });
+
+    return true;
+}
+
+/**
+ * Variable local que almacena el objeto del usuario actualmente logueado.
+ * Mantiene el estado de la sesión en memoria.
+ * @type {Usuario | null}
+ */
+let usuarioActivo = null;
+/**
+ * Devuelve el usuario actualmente activo.
+ * @returns {Usuario | null} El objeto del usuario si está logueado, o `null`.
+ */
+export function getUsuarioActivo() {
+    return usuarioActivo;
+}
+
+/**
+ * Establece el usuario como activo después de un login exitoso.
+ * @param {Usuario} user - El objeto del usuario que ha iniciado sesión.
+ */
+export function setUsuarioActivo(user) {
+    usuarioActivo = user;
+}
+
+/**
+ * Cierra la sesión del usuario activo estableciendo `usuarioActivo` a `null`.
+ */
+export function limpiarUsuarioActivo() {
+    usuarioActivo = null;
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="resolvers%250DContiene%2520todos%2520los%2520resolvers%2520(Queries%2520y%2520Mutations)%2520para%2520la%2520API%2520GraphQL%2520del%2520sistema%2520de%2520voluntariados.module_.html">resolversContiene todos los resolvers (Queries y Mutations) para la API GraphQL del sistema de voluntariados.</a></li><li><a href="schema%250DDefine%2520el%2520esquema%2520GraphQL%2520completo%2520para%2520la%2520API%2520de%2520voluntariados.%250DIncluye%2520tipos,%2520enums,%2520queries%2520y%2520mutations%2520para%2520usuarios%2520y%2520voluntariados.module_.html">schemaDefine el esquema GraphQL completo para la API de voluntariados.Incluye tipos, enums, queries y mutations para usuarios y voluntariados.</a></li><li><a href="server%250DServidor%2520principal%2520de%2520la%2520API%2520GraphQL%2520para%2520el%2520sistema%2520de%2520voluntariados.%250DConfigura%2520Express.js%2520con%2520middleware%2520y%2520el%2520endpoint%2520GraphQL.module_.html">serverServidor principal de la API GraphQL para el sistema de voluntariados.Configura Express.js con middleware y el endpoint GraphQL.</a></li></ul><h3>Externals</h3><ul><li><a href="external-getAllUsuarios.html">getAllUsuarios</a></li><li><a href="external-getAllVoluntariados.html">getAllVoluntariados</a></li></ul><h3>Global</h3><ul><li><a href="global.html#COLLECTION">COLLECTION</a></li><li><a href="global.html#createUsuario">createUsuario</a></li><li><a href="global.html#createVoluntariado">createVoluntariado</a></li><li><a href="global.html#deleteUsuarioByEmail">deleteUsuarioByEmail</a></li><li><a href="global.html#deleteUsuarioByIndex">deleteUsuarioByIndex</a></li><li><a href="global.html#deleteVoluntariado">deleteVoluntariado</a></li><li><a href="global.html#deleteVoluntariadoByIndex">deleteVoluntariadoByIndex</a></li><li><a href="global.html#getAllUsuarios">getAllUsuarios</a></li><li><a href="global.html#getAllVoluntariados">getAllVoluntariados</a></li><li><a href="global.html#getUsuarioActivo">getUsuarioActivo</a></li><li><a href="global.html#getUsuarioByEmail">getUsuarioByEmail</a></li><li><a href="global.html#getVoluntariadoById">getVoluntariadoById</a></li><li><a href="global.html#getVoluntariadoByIndex">getVoluntariadoByIndex</a></li><li><a href="global.html#limpiarUsuarioActivo">limpiarUsuarioActivo</a></li><li><a href="global.html#mapVoluntariado">mapVoluntariado</a></li><li><a href="global.html#setUsuarioActivo">setUsuarioActivo</a></li><li><a href="global.html#updateVoluntariado">updateVoluntariado</a></li><li><a href="global.html#updateVoluntariadoByIndex">updateVoluntariadoByIndex</a></li><li><a href="global.html#usuarioActivo">usuarioActivo</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon Dec 08 2025 21:41:42 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

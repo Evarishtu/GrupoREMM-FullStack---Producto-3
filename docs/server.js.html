@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module server
+ * Servidor principal de la API GraphQL para el sistema de voluntariados.
+ * Configura Express.js con middleware y el endpoint GraphQL.
+ */
+import dotenv from "dotenv";
+
+/**
+ * Carga las variables de entorno desde el archivo .env.
+ * Configura process.env con todas las variables necesarias.
+ */
+dotenv.config();
+
+/**
+ * Framework web para Node.js que maneja peticiones HTTP y middleware.
+ * Proporciona routing, middleware y manejo de requests/responses.
+ * 
+ */
+import express from "express";
+
+/**
+ * Middleware CORS para permitir peticiones cross-origin.
+ */
+import cors from "cors";
+
+/**
+ * Middleware para parsear cuerpos JSON en las peticiones HTTP.
+ */
+import bodyParser from "body-parser";
+
+/**
+ * Middleware de Express GraphQL para exponer la API GraphQL.
+ */
+import {graphqlHTTP} from "express-graphql";
+
+/**
+ * Esquema GraphQL completo de la aplicación.
+ */
+import {schema} from "./graphql/schema.js";
+
+/**
+ * Resolvers (funciones de resolución) para todas las queries y mutations.
+ */
+import {root} from "./graphql/resolvers.js";
+
+/**
+ * Aplicación Express principal.
+ * 
+ * @type {import('express').Express}
+ */
+const app = express();
+
+/**
+ * Puerto en el que escuchará el servidor.
+ * Usa la variable de entorno PORT o 3000 por defecto.
+ * 
+ * @type {number}
+ */
+const port = process.env.PORT || 3000;
+
+/**
+ * Middleware para parsear cuerpos JSON en las peticiones entrantes.
+ * Limita el tamaño máximo a 10mb por defecto.
+ */
+app.use(bodyParser.json());
+
+/**
+ * Middleware CORS que permite peticiones desde cualquier origen.
+ * Configuración por defecto: permite todos los métodos y headers.
+ */
+
+app.use(cors());
+/**
+ * Middleware GraphQL principal en la ruta /graphql.
+ * Expone la API GraphQL completa con interfaz GraphiQL en desarrollo.
+ */
+app.use("/graphql",
+    graphqlHTTP({
+        /**
+         * Esquema GraphQL que define todos los tipos, queries y mutations.
+         * @type {import('graphql').GraphQLSchema}
+         */
+        schema,
+        /**
+         * Objeto raíz que contiene todos los resolvers (funciones de resolución).
+         * @type {Object}
+         */
+        rootValue: root,
+        /**
+         * Habilita la interfaz GraphiQL en desarrollo para testing interactivo.
+         * @type {boolean}
+         */
+        graphiql: true
+    })
+);
+
+/**
+ * Inicia el servidor HTTP escuchando en el puerto configurado.
+ * Registra un mensaje de confirmación en la consola al iniciar correctamente.
+ * 
+ * @param {number} port - Puerto del servidor.
+ * @returns {void}
+ * @listens express~listening
+ */
+app.listen(port, () => {
+    console.log(`Servidor escuchando en http://localhost:${port}`);
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="resolvers%250DContiene%2520todos%2520los%2520resolvers%2520(Queries%2520y%2520Mutations)%2520para%2520la%2520API%2520GraphQL%2520del%2520sistema%2520de%2520voluntariados.module_.html">resolversContiene todos los resolvers (Queries y Mutations) para la API GraphQL del sistema de voluntariados.</a></li><li><a href="schema%250DDefine%2520el%2520esquema%2520GraphQL%2520completo%2520para%2520la%2520API%2520de%2520voluntariados.%250DIncluye%2520tipos,%2520enums,%2520queries%2520y%2520mutations%2520para%2520usuarios%2520y%2520voluntariados.module_.html">schemaDefine el esquema GraphQL completo para la API de voluntariados.Incluye tipos, enums, queries y mutations para usuarios y voluntariados.</a></li><li><a href="server%250DServidor%2520principal%2520de%2520la%2520API%2520GraphQL%2520para%2520el%2520sistema%2520de%2520voluntariados.%250DConfigura%2520Express.js%2520con%2520middleware%2520y%2520el%2520endpoint%2520GraphQL.module_.html">serverServidor principal de la API GraphQL para el sistema de voluntariados.Configura Express.js con middleware y el endpoint GraphQL.</a></li></ul><h3>Externals</h3><ul><li><a href="external-getAllUsuarios.html">getAllUsuarios</a></li><li><a href="external-getAllVoluntariados.html">getAllVoluntariados</a></li></ul><h3>Global</h3><ul><li><a href="global.html#COLLECTION">COLLECTION</a></li><li><a href="global.html#createUsuario">createUsuario</a></li><li><a href="global.html#createVoluntariado">createVoluntariado</a></li><li><a href="global.html#deleteUsuarioByEmail">deleteUsuarioByEmail</a></li><li><a href="global.html#deleteUsuarioByIndex">deleteUsuarioByIndex</a></li><li><a href="global.html#deleteVoluntariado">deleteVoluntariado</a></li><li><a href="global.html#deleteVoluntariadoByIndex">deleteVoluntariadoByIndex</a></li><li><a href="global.html#getAllUsuarios">getAllUsuarios</a></li><li><a href="global.html#getAllVoluntariados">getAllVoluntariados</a></li><li><a href="global.html#getUsuarioActivo">getUsuarioActivo</a></li><li><a href="global.html#getUsuarioByEmail">getUsuarioByEmail</a></li><li><a href="global.html#getVoluntariadoById">getVoluntariadoById</a></li><li><a href="global.html#getVoluntariadoByIndex">getVoluntariadoByIndex</a></li><li><a href="global.html#limpiarUsuarioActivo">limpiarUsuarioActivo</a></li><li><a href="global.html#mapVoluntariado">mapVoluntariado</a></li><li><a href="global.html#setUsuarioActivo">setUsuarioActivo</a></li><li><a href="global.html#updateVoluntariado">updateVoluntariado</a></li><li><a href="global.html#updateVoluntariadoByIndex">updateVoluntariadoByIndex</a></li><li><a href="global.html#usuarioActivo">usuarioActivo</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon Dec 08 2025 21:41:42 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

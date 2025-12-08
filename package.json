@@ -5,7 +5,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "docs": "jsdoc -c jsdoc.json",
+    "docs:dev": "jsdoc -c jsdoc.json --verbose"
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,7 @@
     "mongodb": "^7.0.0"
   },
   "devDependencies": {
+    "jsdoc": "^4.0.5",
     "nodemon": "^3.1.11"
   }
 }
