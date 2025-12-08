@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
+    "start": "node server.js",
     "docs": "jsdoc -c jsdoc.json",
     "docs:dev": "jsdoc -c jsdoc.json --verbose"
   },
