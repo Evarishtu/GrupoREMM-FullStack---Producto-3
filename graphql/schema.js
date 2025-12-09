@@ -1,18 +1,20 @@
 import { buildSchema } from "graphql";
 
+/** @typedef {Object} GraphQLSchema */
+
 /**
  * Esquema GraphQL completo de la aplicación.
  * Define todos los tipos, queries y mutations disponibles en la API.
  *
- * @type {import('graphql').GraphQLSchema}
+ * @type {GraphQLSchema}
  */
 export const schema = buildSchema(`
     """
-    Representa un usuario del sistema con sus credenciales básicas.
+    Representa un usuario del sistema con sus datos públicos.
     """
-    type Usuario{
-        nombre: String
-        email: String
+    type Usuario {
+        nombre: String!
+        email: String!
     }
 
     """
@@ -35,24 +37,24 @@ export const schema = buildSchema(`
     Representa un voluntariado publicado en el sistema.
     Puede ser una oferta de servicios o una petición de ayuda.
     """
-    type Voluntariado{
-        id: ID
-        titulo: String
-        usuario: String
-        fecha: String
-        descripcion: String
-        tipo: TipoVoluntariado
+    type Voluntariado {
+        id: ID!
+        titulo: String!
+        usuario: String!
+        fecha: String!
+        descripcion: String!
+        tipo: TipoVoluntariado!
     }
 
     """
     Queries disponibles para consultar datos del sistema.
     """
-    type Query{
+    type Query {
 
         """
         Obtiene la lista completa de todos los usuarios registrados.
         """
-        usuarios: [Usuario]
+        usuarios: [Usuario!]!
 
         """
         Busca un usuario específico por su dirección de correo electrónico.
@@ -62,37 +64,38 @@ export const schema = buildSchema(`
         """
         Obtiene la lista completa de todos los voluntariados disponibles.
         """
-        voluntariados: [Voluntariado]
+        voluntariados: [Voluntariado!]!
 
         """
         Busca un voluntariado específico por su identificador único.
         """
-        voluntariadoPorId(id: ID): Voluntariado
+        voluntariadoPorId(id: ID!): Voluntariado
     }
 
     """
     Mutations disponibles para modificar datos del sistema.
     """
-    type Mutation{
+    type Mutation {
+
         """
         Crea un nuevo usuario en el sistema.
         """
-        crearUsuario(nombre: String!, email: String!, password: String!): Usuario
+        crearUsuario(nombre: String!, email: String!, password: String!): Usuario!
 
         """
         Elimina un usuario específico por su email.
         """
-        borrarUsuarioPorEmail(email: String!): String
+        borrarUsuarioPorEmail(email: String!): String!
 
         """
         Elimina un usuario por su posición en la lista (índice).
         """
-        borrarUsuarioPorIndice(indice: Int!): String
+        borrarUsuarioPorIndice(indice: Int!): String!
 
         """
         Inicia sesión validando credenciales y devuelve token JWT.
         """
-        login(email: String!, password: String!): AuthPayload
+        login(email: String!, password: String!): AuthPayload!
 
         """
         Crea un nuevo voluntariado en el sistema.
@@ -103,7 +106,7 @@ export const schema = buildSchema(`
             fecha: String!,
             descripcion: String!,
             tipo: TipoVoluntariado!
-        ): Voluntariado
+        ): Voluntariado!
 
         """
         Actualiza los campos de un voluntariado existente por su ID.
@@ -116,7 +119,7 @@ export const schema = buildSchema(`
             fecha: String,
             descripcion: String,
             tipo: TipoVoluntariado
-        ): String
+        ): String!
 
         """
         Actualiza los campos de un voluntariado por su posición en la lista (índice).
@@ -129,16 +132,16 @@ export const schema = buildSchema(`
             fecha: String,
             descripcion: String,
             tipo: TipoVoluntariado
-        ): String
+        ): String!
 
         """
         Elimina un voluntariado específico por su ID.
         """
-        eliminarVoluntariado(id: ID!): String
+        eliminarVoluntariado(id: ID!): String!
 
         """
         Elimina un voluntariado por su posición en la lista (índice).
         """
-        eliminarVoluntariadoPorIndice(indice: Int!): String
+        eliminarVoluntariadoPorIndice(indice: Int!): String!
     }
 `);

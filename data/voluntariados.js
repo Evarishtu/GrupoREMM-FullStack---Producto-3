@@ -1,13 +1,11 @@
 /**
  * @module voluntariados
- * Módulo con datos de ejemplo de voluntariados usado en versiones anteriores en memoria.
- * En la versión actual del backend, los voluntariados se gestionan en MongoDB
- * mediante los modelos y la API GraphQL.
+ * Datos de ejemplo de voluntariados en memoria. En MongoDB se usan modelos reales y GraphQL.
  */
 
 /**
  * Representa un voluntariado publicado por un usuario.
- * 
+ *
  * @typedef {Object} Voluntariado
  * @property {number} id - Identificador único del voluntariado (solo en la versión en memoria).
  * @property {string} titulo - Título descriptivo de la oferta o petición.
@@ -15,14 +13,14 @@
  * @property {string} fecha - Fecha de publicación del voluntariado (formato 'YYYY-MM-DD').
  * @property {string} descripcion - Descripción detallada del voluntariado.
  * @property {'oferta'|'peticion'} tipo - Indica si es una oferta de servicio o una petición de ayuda.
- * @property {string} imagenFondo - URL de una imagen para representar visualmente el voluntariado.
+ * @property {string} imagenFondo - URL de la imagen que representa visualmente el voluntariado.
  */
 
 /**
  * Lista de voluntariados de ejemplo usada en la versión sin base de datos.
  * En la versión con MongoDB, los voluntariados reales se leen y escriben
  * directamente en la colección "voluntariados".
- * 
+ *
  * @type {Voluntariado[]}
  */
 export let voluntariados = [
@@ -49,28 +47,32 @@ export let voluntariados = [
     titulo: "Se necesita persona para cuidar de una gata",
     usuario: "Evarishtu Dongua Kuzin",
     fecha: "2025-05-10",
-    descripcion: "Se busca persona responsable para cuidar de una gata. Su ama ya no puede hacerse cargo",
+    descripcion: "Se busca persona responsable para cuidar de una gata. Su dueña ya no puede hacerse cargo",
     tipo: "peticion",
     imagenFondo: "https://www.minino.com/wp-content/uploads/2025/01/nota-de-blog-31-enero.png.webp"
   },
   {
     id: 4,
-    titulo: "Se necesita persona para adoptción de animal",
+    titulo: "Se necesita persona para adopción de animal",
     usuario: "Marc Espuga Moreno",
     fecha: "2025-07-10",
-    descripcion: "Se busca persona responsable para adoptar de una iguana. Con conocimientos sobre reptiles",
+    descripcion: "Se busca persona responsable para adoptar una iguana. Con conocimientos sobre reptiles",
     tipo: "peticion",
     imagenFondo: "https://15f8034cdff6595cbfa1-1dd67c28d3aade9d3442ee99310d18bd.ssl.cf3.rackcdn.com/uploaded_thumb_big/c1dc328c546f572dfe66453867eeffb8/cuidar_iguana_domestica_consejos_clinica_veterinaria_la_granja_aviles.png"
   }
 ];
 
 /**
- * Reemplaza la lista actual de voluntariados en memoria.
- * Esta funcionalidad solo se usa en la versión sin base de datos.
- * 
- * @param {Voluntariado[]} nuevoArray
+ * Reemplaza completamente la lista actual de voluntariados en memoria.
+ * Esta funcionalidad solo se utiliza en versiones sin base de datos.
+ *
+ * @param {Voluntariado[]} nuevosVoluntariados - Nueva lista de voluntariados en memoria.
  * @returns {void}
  */
-export function setVoluntariados(nuevoArray) {
-  voluntariados = nuevoArray;
+export function setVoluntariados(nuevosVoluntariados) {
+  if (!Array.isArray(nuevosVoluntariados)) {
+    throw new TypeError("setVoluntariados espera un array de voluntariados");
+  }
+
+  voluntariados = nuevosVoluntariados;
 }

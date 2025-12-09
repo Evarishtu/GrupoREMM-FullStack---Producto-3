@@ -1,19 +1,18 @@
 /**
- * @module usuario
- * Módulo con datos de ejemplo de usuarios usado en versiones anteriores en memoria.
- * En la versión actual del backend, los usuarios se gestionan en MongoDB
- * mediante los modelos y nunca se almacenan contraseñas en texto plano.
+ * @module usuarios
+ * Datos de ejemplo de usuarios en memoria.
+ * En MongoDB se usan modelos reales y contraseñas hasheadas.
  */
 
 /**
  * @typedef {Object} Usuario
- * @property {string} nombre - El nombre del usuario.
- * @property {string} email - La dirección de correo electrónico del usuario.
- * @property {string} password - La contraseña del usuario (solo para ejemplos locales, no en producción).
+ * @property {string} nombre - Nombre del usuario.
+ * @property {string} email - Dirección de correo electrónico del usuario.
+ * @property {string} password - Contraseña del usuario (solo para entorno de desarrollo o pruebas).
  */
 
 /**
- * Lista inicial de usuarios de ejemplo.
+ * Lista inicial de usuarios de ejemplo en memoria.
  * En la versión con MongoDB, los usuarios reales se insertan en la base de datos
  * con la contraseña hasheada mediante bcrypt.
  *
@@ -23,17 +22,21 @@ export let usuarios = [
   {
     nombre: "Admin",
     email: "admin@mail.com",
-    password: "1234" // solo como dato de ejemplo histórico
+    password: "1234" // Solo como dato de ejemplo histórico
   }
 ];
 
 /**
- * Reemplaza la lista actual de usuarios en memoria.
- * Esta funcionalidad solo se usa en versiones sin base de datos.
+ * Reemplaza completamente la lista actual de usuarios en memoria.
+ * Esta funcionalidad solo se utiliza en versiones sin base de datos.
  *
- * @param {Usuario[]} nuevos
+ * @param {Usuario[]} nuevosUsuarios - Nueva lista de usuarios en memoria.
  * @returns {void}
  */
-export function setUsuarios(nuevos) {
-  usuarios = nuevos;
+export function setUsuarios(nuevosUsuarios) {
+  if (!Array.isArray(nuevosUsuarios)) {
+    throw new TypeError("setUsuarios espera un array de usuarios");
+  }
+
+  usuarios = nuevosUsuarios;
 }

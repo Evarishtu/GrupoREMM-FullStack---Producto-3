@@ -25,11 +25,18 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 /**
+ * Contexto de GraphQL con el usuario autenticado mediante JWT.
+ * @typedef {Object} GraphQLContext
+ * @property {{email: string, nombre: string, rol: string} | null} user - Usuario autenticado o null si no hay token válido.
+ */
+
+/**
  * Lanza un error si no hay usuario autenticado en el contexto.
- * @param {Object} context - Contexto de GraphQL con el usuario autenticado.
+ * @param {GraphQLContext} context - Contexto de GraphQL con el usuario autenticado.
+ * @throws {Error} Si no existe usuario en el contexto.
  */
 function requireAuth(context) {
-  if (!context.user) {
+  if (!context?.user) {
     throw new Error("No autorizado");
   }
 }
@@ -40,47 +47,51 @@ function requireAuth(context) {
  * @type {Object}
  */
 export const root = {
+  // ======================
   // Queries
+  // ======================
 
   /**
    * Obtiene la lista completa de todos los usuarios registrados.
    * @async
-   * @returns {Promise<import('../models/usuario.model.js').Usuario[]>}
+   * @returns {Promise<Array<{nombre: string, email: string}>>}
    */
   usuarios: async () => {
-    return await getAllUsuarios();
+    return getAllUsuarios();
   },
 
   /**
    * Busca un usuario específico por su dirección de correo electrónico.
    * @async
    * @param {{email: string}} args
-   * @returns {Promise<import('../models/usuario.model.js').Usuario | null>}
+   * @returns {Promise<{nombre: string, email: string} | null>}
    */
   usuarioPorEmail: async ({ email }) => {
-    return await getUsuarioByEmail(email);
+    return getUsuarioByEmail(email);
   },
 
   /**
    * Obtiene la lista completa de todos los voluntariados disponibles.
    * @async
-   * @returns {Promise<import('../models/voluntariado.model.js').Voluntariado[]>}
+   * @returns {Promise<Array<{id: string, titulo: string, usuario: string, fecha: string, descripcion: string, tipo: string}>>}
    */
   voluntariados: async () => {
-    return await getAllVoluntariados();
+    return getAllVoluntariados();
   },
 
   /**
    * Busca un voluntariado específico por su ID único.
    * @async
    * @param {{id: string}} args
-   * @returns {Promise<import('../models/voluntariado.model.js').Voluntariado | null>}
+   * @returns {Promise<{id: string, titulo: string, usuario: string, fecha: string, descripcion: string, tipo: string} | null>}
    */
   voluntariadoPorId: async ({ id }) => {
-    return await getVoluntariadoById(id);
+    return getVoluntariadoById(id);
   },
 
+  // ======================
   // Mutations
+  // ======================
 
   /**
    * Crea un nuevo usuario en el sistema.
@@ -89,14 +100,14 @@ export const root = {
    * @returns {Promise<{id: string, nombre: string, email: string}>}
    */
   crearUsuario: async ({ nombre, email, password }) => {
-    return await createUsuario({ nombre, email, password });
+    return createUsuario({ nombre, email, password });
   },
 
   /**
    * Elimina un usuario por su dirección de correo electrónico.
    * @async
    * @param {{email: string}} args
-   * @param {Object} context
+   * @param {GraphQLContext} context
    * @returns {Promise<string>}
    */
   borrarUsuarioPorEmail: async ({ email }, context) => {
@@ -109,7 +120,7 @@ export const root = {
    * Elimina un usuario por su posición en el array de usuarios.
    * @async
    * @param {{indice: number}} args
-   * @param {Object} context
+   * @param {GraphQLContext} context
    * @returns {Promise<string>}
    */
   borrarUsuarioPorIndice: async ({ indice }, context) => {
@@ -138,9 +149,13 @@ export const root = {
       throw new Error("Credenciales inválidas");
     }
 
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET no está definida en las variables de entorno");
+    }
+
     const token = jwt.sign(
       { email: user.email, nombre: user.nombre, rol: "ADMIN" },
-      process.env.JWT_SECRET || "dev_secret",
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
@@ -156,17 +171,19 @@ export const root = {
   /**
    * Crea un nuevo voluntariado validando el tipo.
    * @async
-   * @param {{titulo: string, usuario: string, fecha: string, descripcion: string, tipo: 'PETICION'|'OFERTA'}} args
-   * @param {Object} context
-   * @returns {Promise<import('../models/voluntariado.model.js').Voluntariado>}
+   * @param {{titulo: string, usuario: string, fecha: string, descripcion: string, tipo: 'PETICION' | 'OFERTA'}} args
+   * @param {GraphQLContext} context
+   * @returns {Promise<{id: string, titulo: string, usuario: string, fecha: string, descripcion: string, tipo: string}>}
    */
   crearVoluntariado: async ({ titulo, usuario, fecha, descripcion, tipo }, context) => {
     requireAuth(context);
+
     const tipoValido = ["PETICION", "OFERTA"];
     if (!tipoValido.includes(tipo)) {
       throw new Error("El tipo de voluntariado debe ser PETICION u OFERTA");
     }
-    return await createVoluntariado({
+
+    return createVoluntariado({
       titulo,
       usuario,
       fecha,
@@ -179,21 +196,24 @@ export const root = {
    * Actualiza un voluntariado por su ID validando el tipo.
    * @async
    * @param {{id: string}} args
-   * @param {Object} context
+   * @param {GraphQLContext} context
    * @returns {Promise<string>}
    */
   actualizarVoluntariado: async ({ id, ...cambios }, context) => {
     requireAuth(context);
+
     if (cambios.tipo) {
       const tipoValido = ["PETICION", "OFERTA"];
       if (!tipoValido.includes(cambios.tipo)) {
         throw new Error("El tipo de voluntariado debe ser PETICION u OFERTA");
       }
     }
+
     const actualizado = await updateVoluntariado(id, cambios);
     if (!actualizado) {
       throw new Error("Voluntariado no encontrado");
     }
+
     return "Voluntariado actualizado";
   },
 
@@ -201,15 +221,24 @@ export const root = {
    * Actualiza un voluntariado por su índice en el array.
    * @async
    * @param {{indice: number}} args
-   * @param {Object} context
+   * @param {GraphQLContext} context
    * @returns {Promise<string>}
    */
   actualizarVoluntariadoPorIndice: async ({ indice, ...cambios }, context) => {
     requireAuth(context);
+
+    if (cambios.tipo) {
+      const tipoValido = ["PETICION", "OFERTA"];
+      if (!tipoValido.includes(cambios.tipo)) {
+        throw new Error("El tipo de voluntariado debe ser PETICION u OFERTA");
+      }
+    }
+
     const ok = await updateVoluntariadoByIndex(indice, cambios);
     if (!ok) {
       throw new Error("Índice fuera de rango");
     }
+
     return "Voluntariado actualizado por índice";
   },
 
@@ -217,15 +246,17 @@ export const root = {
    * Elimina un voluntariado por su ID.
    * @async
    * @param {{id: string}} args
-   * @param {Object} context
+   * @param {GraphQLContext} context
    * @returns {Promise<string>}
    */
   eliminarVoluntariado: async ({ id }, context) => {
     requireAuth(context);
+
     const ok = await deleteVoluntariado(id);
     if (!ok) {
       throw new Error("Voluntariado no encontrado");
     }
+
     return "Voluntariado eliminado";
   },
 
@@ -233,15 +264,17 @@ export const root = {
    * Elimina un voluntariado por su índice en el array.
    * @async
    * @param {{indice: number}} args
-   * @param {Object} context
+   * @param {GraphQLContext} context
    * @returns {Promise<string>}
    */
   eliminarVoluntariadoPorIndice: async ({ indice }, context) => {
     requireAuth(context);
+
     const ok = await deleteVoluntariadoByIndex(indice);
     if (!ok) {
       throw new Error("Índice fuera de rango");
     }
+
     return "Voluntariado eliminado por índice";
   }
 };
