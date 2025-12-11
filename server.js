@@ -35,7 +35,7 @@ const app = express();
  * Usa la variable de entorno PORT o 3000 por defecto.
  * @type {number|string}
  */
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 /**
  * Middleware para parsear cuerpos JSON en las peticiones entrantes.
