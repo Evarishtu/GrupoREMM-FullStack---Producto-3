@@ -90,9 +90,8 @@ Importante para Mutaciones: Para probar Mutaciones que requieren autenticación,
 
 ```JSON
 {
-  "Authorization": "Bearer <el_token_que_recibiste_en_login>"
+  "Authorization": "Bearer <el_token_que_recibiste_en_login>"
 }
-```
 
 ## Estructura del proyecto
 
