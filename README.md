@@ -7,6 +7,7 @@ Una API backend basada en GraphQL para una plataforma de voluntariado y donacion
 - **Backend:** Node.js con Express.js
 - **API:** GraphQL (express-graphql)
 - **Base de datos:** MongoDB
+- **Autenticación:** JSON Web Tokens (JWT) y bcrypt
 - **Librerías adicionales:** CORS, body-parser
 
 ## Requisitos previos
@@ -29,9 +30,14 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado:
    ```bash
    npm install
    ```
-
-3. **Configurar la conexión a MongoDB (si es necesario):**
-   - Edita `database/database.js` para actualizar tu cadena de conexión a MongoDB
+3. **Configurar las variables de entorno:**
+   Crea un archivo llamado `.env` en la raíz del proyecto y define las siguientes variables para la conexión a la base de datos y la seguridad:
+   ```env
+   MONGO_URI=mongodb+srv://user:password@cluster...
+   MONGO_DB_NAME=voluntariados-REMM
+   JWT_SECRET=tu_secreto_seguro_para_jwt
+   PORT=3000
+   ```
 
 ## Cómo iniciar el proyecto
 
@@ -80,25 +86,34 @@ Esto abre **GraphiQL**, un IDE interactivo donde puedes:
 - Ver documentación de consultas
 - Depurar tus llamadas a API
 
+Importante para Mutaciones: Para probar Mutaciones que requieren autenticación, debes obtener primero un token de la login Mutation e incluirlo en la pestaña de HTTP HEADERS de GraphiQL:
+
+```JSON
+{
+  "Authorization": "Bearer <el_token_que_recibiste_en_login>"
+}
+```
+
 ## Estructura del proyecto
 
 ```
 proyecto-3/
 ├── graphql/
-│   ├── schema.js          # Definiciones de tipos de GraphQL y esquema
-│   └── resolvers.js       # Resolvedores de consultas y mutaciones de GraphQL
+│   ├── schema.js               # Definiciones de tipos de GraphQL y esquema
+│   └── resolvers.js            # Resolvedores de consultas y mutaciones de GraphQL
 ├── models/
-│   ├── usuario.model.js   # Operaciones de datos de usuarios
-│   └── voluntariado.model.js  # Operaciones de datos de oportunidades de voluntariado
+│   ├── usuario.model.js        # Operaciones de datos de usuarios
+│   └── voluntariado.model.js   # Operaciones de datos de oportunidades de voluntariado
 ├── data/
-│   ├── usuarios.js        # Datos de usuarios de muestra
-│   └── voluntariados.js   # Datos de voluntariado de muestra
+│   ├── usuarios.js             # Datos de usuarios de muestra
+│   └── voluntariados.js        # Datos de voluntariado de muestra
 ├── database/
-│   └── database.js        # Configuración y conexión a MongoDB
-├── server.js              # Punto de entrada del servidor Express
-├── package.json           # Dependencias y scripts del proyecto
-├── docker-compose.yml     # Configuración de Docker
-└── README.md              # Este archivo
+│   └── database.js             # Configuración y conexión Singleton a MongoDB
+├── server.js                   # Punto de entrada del servidor Express y middleware de JWT
+├── package.json                # Dependencias y scripts del proyecto
+├── docker-compose.yml          # Configuración de Docker
+├── .env                        # Variables de entorno (conexión DB, JWT Secret)
+└── README.md                   # Este archivo
 ```
 
 ## Entidades principales
@@ -108,7 +123,7 @@ proyecto-3/
 **Campos:**
 - `nombre` (String): Nombre completo del usuario
 - `email` (String): Correo electrónico del usuario (identificador único)
-- `password` (String): Contraseña del usuario
+- `password` (String): Contraseña del usuario (almacenada hasheada con bcrypt)
 
 ### Voluntariado
 
@@ -136,14 +151,6 @@ query {
 # Obtener usuario por correo
 query {
   usuarioPorEmail(email: "usuario@example.com") {
-    nombre
-    email
-  }
-}
-
-# Obtener usuario activo actual
-query {
-  usuarioActivo {
     nombre
     email
   }
@@ -208,11 +215,6 @@ mutation {
 mutation {
   borrarUsuarioPorIndice(indice: 0)
 }
-
-# Limpiar sesión de usuario activo
-mutation {
-  limpiarUsuarioActivo
-}
 ```
 
 #### Mutaciones de voluntariado
@@ -272,10 +274,10 @@ Esto iniciará la base de datos MongoDB y la aplicación en contenedores.
 
 ## Notas de desarrollo
 
-- **Autenticación:** Las contraseñas se almacenan en texto plano (no recomendado para producción)
+- **Autenticación:** Se utiliza JWT. Las operaciones de modificación requieren un token válido.
+- **Seguridad de Contraseña:** Las contraseñas se hashean utilizando bcrypt con un factor de trabajo de 10 antes de ser almacenadas.
 - **Tipos de voluntariado:** Solo `PETICION` y `OFERTA` son tipos válidos
 - **Operaciones basadas en índices:** Algunas operaciones usan índice de array en lugar de IDs para compatibilidad hacia atrás
-- **Usuario activo:** El sistema mantiene una sesión de usuario activa en memoria (no persiste entre reinicios del servidor)
 - **MongoDB requerido:** Asegúrate de que MongoDB esté correctamente configurado en `database/database.js`
 
 ## Soporte
